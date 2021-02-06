@@ -12,6 +12,7 @@ Kaggle client for Emacs.
 
 | Command                           | Description                                             |
 | :-------------------------------- | :------------------------------------------------------ |
+| `kaggle-datasets-search`          | Search for datasets.                                    |
 | `kaggle-datasets-download`        | Download the files in a dataset.                        |
 | `kaggle-competitions-download`    | Download the files for a competition.                   |
 | `kaggle-competitions-leaderboard` | Display a list of the top of a competition leaderboard. |

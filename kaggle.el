@@ -31,6 +31,7 @@
 (require 'parse-csv)
 
 (defvar kaggle--competition nil)
+(defvar kaggle--datasets-terms nil)
 
 (defun kaggle--generate-buffer-name (command-args)
   (generate-new-buffer-name
@@ -86,6 +87,45 @@
   (tablist-minor-mode)
   (tabulated-list-init-header))
 
+(defun kaggle--datasets-search-parse (index line)
+  (let* ((data (parse-csv->list line))
+         (ref (car data))
+         (title (nth 1 data))
+         (size (nth 2 data))
+         (last-updated (nth 3 data))
+         (downloads (nth 4 data))
+         (usability (nth 6 data)))
+    `(,ref ,(vector title size usability downloads last-updated))))
+
+(defun kaggle--datasets-search-entries (terms)
+  (let* ((data (kaggle--run-kaggle "datasets" "list" "-vs" terms))
+         (lines (->> (split-string data "\n" t)
+                     (-map #'string-trim)
+                     (-drop-while #'kaggle--warning-line-p))))
+    (if (not (string-equal (car lines) "No datasets found"))
+        (->> lines
+             (-drop 1)
+             (-map-indexed #'kaggle--datasets-search-parse))
+      (error "No matching datasets: %s" terms))))
+
+(defun kaggle--datasets-search-refresh ()
+  (setq tabulated-list-entries
+        (kaggle--datasets-search-entries kaggle--datasets-terms)))
+
+(define-derived-mode kaggle-datasets-search-mode tabulated-list-mode
+  "Datasets"
+  "Major mode for browsing the search results for Kaggle datasets."
+  (setq tabulated-list-format [("Title" 22)
+                               ("Size" 8)
+                               ("Usability" 11)
+                               ("Downloads" 11)
+                               ("Last Updated" 20 t)]
+        tabulated-list-padding 2)
+  (add-hook 'tabulated-list-revert-hook
+            'kaggle--datasets-search-refresh nil t)
+  (tablist-minor-mode)
+  (tabulated-list-init-header))
+
 ;;;###autoload
 (defun kaggle-competitions-download (competition path)
   "Download the files for COMPETITION to PATH."
@@ -106,6 +146,15 @@
   "Download the files in DATASET to PATH."
   (interactive "sDataset URL suffix in format <owner>/<dataset-name>: \nDDownload directory: ")
   (kaggle--run-kaggle-async "datasets" "download" "-p" path "--unzip" dataset))
+
+;;;###autoload
+(defun kaggle-datasets-search (terms)
+  "Search for datasets with TERMS and display."
+  (interactive "sTerms to search for: ")
+  (pop-to-buffer "*kaggle-datasets-search*")
+  (kaggle-datasets-search-mode)
+  (setq-local kaggle--datasets-terms terms)
+  (tablist-revert))
 
 (provide 'kaggle)
 
