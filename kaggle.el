@@ -100,6 +100,11 @@
   (setq-local kaggle--competition competition)
   (tablist-revert))
 
+;;;###autoload
+(defun kaggle-datasets-download (dataset path)
+  (interactive "sDataset URL suffix in format <owner>/<dataset-name>: \nDDownload directory: ")
+  (kaggle--run-kaggle-async "datasets" "download" "-p" path "--unzip" dataset))
+
 (provide 'kaggle)
 
 ;;; kaggle.el ends here
