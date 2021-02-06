@@ -88,6 +88,7 @@
 
 ;;;###autoload
 (defun kaggle-competitions-download (competition path)
+  "Download the files for COMPETITION to PATH."
   (interactive "sCompetition URL suffix: \nDDownload directory: ")
   (kaggle--run-kaggle-async "c" "download" "-p" path competition))
 
@@ -102,6 +103,7 @@
 
 ;;;###autoload
 (defun kaggle-datasets-download (dataset path)
+  "Download the files in DATASET to PATH."
   (interactive "sDataset URL suffix in format <owner>/<dataset-name>: \nDDownload directory: ")
   (kaggle--run-kaggle-async "datasets" "download" "-p" path "--unzip" dataset))
 
