@@ -30,7 +30,7 @@
 (require 'dash)
 (require 'parse-csv)
 
-(defvar kaggle--competition nil)
+(defvar kaggle--competitions-competition nil)
 (defvar kaggle--datasets-terms nil)
 
 (defun kaggle--generate-buffer-name (command-args)
@@ -71,7 +71,7 @@
 
 (defun kaggle--competitions-leaderboard-refresh ()
   (setq tabulated-list-entries
-        (kaggle--competitions-leaderboard-entries kaggle--competition)))
+        (kaggle--competitions-leaderboard-entries kaggle--competitions-competition)))
 
 (define-derived-mode kaggle-competitions-leaderboard-mode tabulated-list-mode
   "Leaderboard"
@@ -138,7 +138,7 @@
   (interactive "sCompetition URL suffix: ")
   (pop-to-buffer "*kaggle-competitions-leaderboard*")
   (kaggle-competitions-leaderboard-mode)
-  (setq-local kaggle--competition competition)
+  (setq-local kaggle--competitions-competition competition)
   (tablist-revert))
 
 ;;;###autoload
