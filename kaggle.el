@@ -32,9 +32,18 @@
 
 (defvar kaggle--competition nil)
 
+(defun kaggle--generate-buffer-name (command-args)
+  (generate-new-buffer-name
+   (format "*kaggle %s*" (string-join command-args " "))))
+
 (defun kaggle--run-kaggle (&rest args)
   (let* ((command (string-join `("kaggle" ,@args) " ")))
     (shell-command-to-string command)))
+
+(defun kaggle--run-kaggle-async (&rest args)
+  (let* ((command (string-join `("kaggle" ,@args) " "))
+         (output-buffer (kaggle--generate-buffer-name args)))
+    (async-shell-command command output-buffer)))
 
 (defun kaggle--warning-line-p (line)
   (string-prefix-p "Warning:" line))
@@ -76,6 +85,11 @@
             'kaggle--competitions-leaderboard-refresh nil t)
   (tablist-minor-mode)
   (tabulated-list-init-header))
+
+;;;###autoload
+(defun kaggle-competitions-download (competition path)
+  (interactive "sCompetition URL suffix: \nDDownload directory: ")
+  (kaggle--run-kaggle-async "c" "download" "-p" path competition))
 
 ;;;###autoload
 (defun kaggle-competitions-leaderboard (competition)
